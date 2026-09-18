@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Upstream Azeron version to build (e.g. 2.0.2)"
+        required: true
+        default: "2.0.2"
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & release macOS app (arm64)
+    runs-on: macos-14 # Apple Silicon
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Resolve version
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            V="${GITHUB_REF_NAME#v}"      # tag v2.0.2 -> 2.0.2
+          else
+            V="${{ github.event.inputs.version }}"
+          fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "Building version $V"
+
+      - name: Install squashfs-tools
+        run: brew install squashfs
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build -- --version "${{ steps.ver.outputs.version }}"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.ver.outputs.version }}
+          name: Azeron Software ${{ steps.ver.outputs.version }} (macOS, arm64)
+          files: dist/*.zip
+          body: |
+            Unofficial macOS (Apple Silicon) build of Azeron Software ${{ steps.ver.outputs.version }},
+            repackaged automatically from the official Linux AppImage.
+
+            **First launch:** this build is ad-hoc signed (not notarized). After downloading:
+            ```
+            xattr -dr com.apple.quarantine "Azeron Software.app"
+            ```
+            or right-click the app → **Open** and confirm once.
+
+            **Firmware updates** require `dfu-util`: `brew install dfu-util`.
+
+            See the [README](https://github.com/cstrahan/azeron-macos#readme) for details.

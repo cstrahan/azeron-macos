@@ -1,0 +1,18 @@
+# build inputs/outputs (all derived from the upstream AppImage)
+/work/
+/dist/
+/node_modules/
+build/icon.icns
+build/icon.iconset/
+
+# large upstream artifacts — never commit
+*.AppImage
+*.exe
+
+# local prototype / extraction scratch (not part of the productionized build)
+/dev-run/
+/extracted/
+/icontest/
+
+# macOS cruft
+.DS_Store

@@ -1,0 +1,55 @@
+{
+  "name": "azeron-macos",
+  "version": "2.0.2",
+  "private": true,
+  "description": "Unofficial macOS repackage of the Azeron keypad configuration software",
+  "homepage": "https://github.com/cstrahan/azeron-macos",
+  "license": "SEE LICENSE IN README.md",
+  "scripts": {
+    "build": "bash scripts/build-macos.sh",
+    "package": "electron-builder --mac zip --arm64"
+  },
+  "devDependencies": {
+    "@electron/asar": "^3.2.10",
+    "electron": "40.9.2",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.azeron.software",
+    "productName": "Azeron Software",
+    "artifactName": "azeron-software-${version}-${arch}-mac.${ext}",
+    "npmRebuild": false,
+    "nodeGypRebuild": false,
+    "buildDependenciesFromSource": false,
+    "asar": false,
+    "directories": {
+      "app": "work/app",
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "**/*"
+    ],
+    "extraFiles": [
+      {
+        "from": "work/firmware",
+        "to": "MacOS/firmware",
+        "filter": ["**/*.bin"]
+      }
+    ],
+    "afterPack": "scripts/afterpack-fill-modules.js",
+    "afterSign": "scripts/macos-adhoc-sign.js",
+    "mac": {
+      "target": [
+        { "target": "zip", "arch": ["arm64"] }
+      ],
+      "category": "public.app-category.utilities",
+      "icon": "build/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "identity": null
+    }
+  }
+}
