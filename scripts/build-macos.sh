@@ -90,6 +90,7 @@ fi
 # 8. Package with electron-builder (ad-hoc signed)
 echo "==> Packaging with electron-builder (Electron $ELECTRON_VERSION)"
 npx --yes electron-builder --mac zip --arm64 \
+  --publish never \
   -c.electronVersion="$ELECTRON_VERSION" \
   -c.extraMetadata.version="$VERSION"
 
